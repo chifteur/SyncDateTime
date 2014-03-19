@@ -7,9 +7,10 @@ namespace SyncDateTime.Design
     {
 
 
-        public void SyncFolder(Action<string> callLog, Action<bool> callback)
+        public void SyncFolder(Action<string,int> callLog, Action<bool> callback)
         {
             //throw new NotImplementedException();
+            callLog("Design Time", 100);
         }
     }
 }

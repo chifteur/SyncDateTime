@@ -18,18 +18,17 @@ namespace SyncDateTime.Model
             //
         }
 
-        public void SyncFolder(Action<string> callLog,Action<bool> callback)
+        public void SyncFolder(Action<string,int> callLog,Action<bool> callback)
         {
             //
             try
             {
                 var pro = new BaseSyncProcess();
-                pro.Run(Settings.Default.SourceFolder, Settings.Default.TargetFolder, callLog);
-                callback(true);
+                pro.Run(Settings.Default.SourceFolder, Settings.Default.TargetFolder, callLog, callback);               
             }
             catch (Exception ex)
             {
-                callLog("Error :"+ex.Message);
+                callLog("Error :"+ex.Message,0);
                 callback(false);
             }
         }

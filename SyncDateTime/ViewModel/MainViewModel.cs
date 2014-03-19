@@ -4,6 +4,7 @@ using GalaSoft.MvvmLight.Messaging;
 using SyncDateTime.Messages;
 using SyncDateTime.Model;
 using SyncDateTime.Properties;
+using System.Collections.Generic;
 using System.Text;
 using System.Windows.Input;
 
@@ -27,26 +28,24 @@ namespace SyncDateTime.ViewModel
         /// </summary>
         //public const string WelcomeTitlePropertyName = "WelcomeTitle";
 
-        private string _welcomeTitle = string.Empty;
-        private StringBuilder _LogResult;
+        private int _Restant = 0;
+        private List<string> _LogResult;
+        private string _sLogResult;
         #endregion
 
 
         #region Properties
-        ///// <summary>
-        ///// Gets the WelcomeTitle property.
-        ///// Changes to that property's value raise the PropertyChanged event. 
-        ///// </summary>
-        //public string WelcomeTitle
-        //{
-        //    get { return _welcomeTitle; }
-        //    set
-        //    {
-        //        if (_welcomeTitle == value) return;
-        //        _welcomeTitle = value;
-        //        RaisePropertyChanged(WelcomeTitlePropertyName);
-        //    }
-        //}
+
+        public int Restant
+        {
+            get { return _Restant; }
+            set
+            {
+                if (_Restant == value) return;
+                _Restant = value;
+                RaisePropertyChanged("Restant");
+            }
+        }
 
         public string SourceFolder
         {
@@ -72,10 +71,22 @@ namespace SyncDateTime.ViewModel
 
         public string LogResult
         {
-            get { return _LogResult.ToString(); }
+            get
+            {
+                return _sLogResult;
+                //var res = new StringBuilder();
+                //foreach (var str in _LogResult)
+                //{
+                //    res.AppendLine(str);
+                //}
+                //return res.ToString();
+            }
             set
             {
-                _LogResult.AppendLine(value);
+                _sLogResult = value;
+                //_LogResult.Add(value);
+                //if (_LogResult.Count > 100)
+                //    _LogResult.RemoveAt(0);
                 RaisePropertyChanged("LogResult");
             }
         }
@@ -94,19 +105,8 @@ namespace SyncDateTime.ViewModel
         /// </summary>
         public MainViewModel(IDataService dataService)
         {
-            _LogResult = new StringBuilder();
+            _LogResult = new List<string>();
             _dataService = dataService;
-            //_dataService.GetData(
-            //    (item, error) =>
-            //    {
-            //        if (error != null)
-            //        {
-            //            // Report error here
-            //            return;
-            //        }
-
-            //        WelcomeTitle = item.Title;
-            //    });
 
             SelectFolder = new RelayCommand<EnumWichFolder>(SelectFolderExecute);
             SwitchFolder = new RelayCommand(() =>
@@ -160,8 +160,18 @@ namespace SyncDateTime.ViewModel
 
         private void SyncFolderExecute()
         {
-            _Busy = true;
-            _dataService.SyncFolder((e) => LogResult = e, (b) => _Busy = false);
+            if (!_Busy)
+            {
+                _Busy = true;
+                _LogResult.Clear();
+                _dataService.SyncFolder((e, i) =>
+                {
+                    LogResult = e;
+                    Restant = i;
+                    if (i < 2)
+                        _Busy = false;
+                }, (b) => { });
+            }
         }
 
         public override void Cleanup()
