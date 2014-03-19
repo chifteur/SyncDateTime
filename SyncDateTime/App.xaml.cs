@@ -1,5 +1,6 @@
 ﻿using System.Windows;
 using GalaSoft.MvvmLight.Threading;
+using SyncDateTime.Properties;
 
 namespace SyncDateTime
 {
@@ -11,6 +12,11 @@ namespace SyncDateTime
         static App()
         {
             DispatcherHelper.Initialize();
+        }
+
+        private void Application_Exit(object sender, ExitEventArgs e)
+        {
+            Settings.Default.Save();
         }
     }
 }

@@ -1,5 +1,7 @@
 ﻿using System.Windows;
 using SyncDateTime.ViewModel;
+using GalaSoft.MvvmLight.Messaging;
+using SyncDateTime.Messages;
 
 namespace SyncDateTime
 {
@@ -15,6 +17,21 @@ namespace SyncDateTime
         {
             InitializeComponent();
             Closing += (s, e) => ViewModelLocator.Cleanup();
+
+            Messenger.Default.Register<SelectFolderMessage>(
+                this,
+                msg =>
+                {
+                    var dialog = new System.Windows.Forms.FolderBrowserDialog();
+                    dialog.Reset();
+                    dialog.RootFolder = System.Environment.SpecialFolder.MyComputer;
+                    dialog.SelectedPath = msg.Path;
+                    if (dialog.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                    {
+                        // Send callback
+                        msg.ProcessCallback(dialog.SelectedPath);
+                    }
+                });
         }
     }
 }
