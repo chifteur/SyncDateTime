@@ -7,6 +7,6 @@ namespace SyncDateTime.Model
 {
     public interface IDataService
     {
-        void GetData(Action<DataItem, Exception> callback);
+        void SyncFolder(Action<string> callLog, Action<bool> callback);
     }
 }

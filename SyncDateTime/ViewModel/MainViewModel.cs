@@ -20,6 +20,7 @@ namespace SyncDateTime.ViewModel
         #region Variables
 
         private readonly IDataService _dataService;
+        private bool _Busy;
 
         /// <summary>
         /// The <see cref="WelcomeTitle" /> property's name.
@@ -114,6 +115,8 @@ namespace SyncDateTime.ViewModel
                 TargetFolder = SourceFolder;
                 SourceFolder = save;
             });
+
+            SynchFolder = new RelayCommand(SyncFolderExecute, SyncFolderCanExecute);
         }
 
         #endregion
@@ -148,6 +151,17 @@ namespace SyncDateTime.ViewModel
                     TargetFolder = newPath;
                     break;
             }
+        }
+
+        private bool SyncFolderCanExecute()
+        {
+            return !_Busy;
+        }
+
+        private void SyncFolderExecute()
+        {
+            _Busy = true;
+            _dataService.SyncFolder((e) => LogResult = e, (b) => _Busy = false);
         }
 
         public override void Cleanup()
