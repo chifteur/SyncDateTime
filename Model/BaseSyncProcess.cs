@@ -1,9 +1,12 @@
-﻿using SyncDateTime.Properties;
+﻿using SyncDateTime.Logging;
+using SyncDateTime.Properties;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 
@@ -34,11 +37,18 @@ namespace SyncDateTime.Model
 
         private void RunAsync(string source, string target)
         {
+            Thread.CurrentThread.Priority = ThreadPriority.Highest;
+            var _stopWatch = new Stopwatch();
+            Logger.SyncLogger.InfoFormat("Start sync source:{0}, target:{1}", source, target);
             //First build the source list
+            _stopWatch.Restart();
             DirectoryInfo di = new DirectoryInfo(source);
             FullDirList(di, "*");
 
+            Logger.SyncLogger.InfoFormat("Find {0} files, and {1} folders in source", _files.Count, _folders.Count);
+
             Count = _files.Count + _folders.Count;
+
 
             DateTime newDT;
             //now for each files and folder
@@ -54,7 +64,7 @@ namespace SyncDateTime.Model
                     newDT = File.GetCreationTime(sourcefile.FullName);
                     try
                     {
-                        
+
                         File.SetCreationTime(targetfile.FullName, newDT);
                         Callback(String.Format("Set file {0:g} : {1}", newDT, targetfile.FullName));
                     }
@@ -63,6 +73,8 @@ namespace SyncDateTime.Model
                         Callback("Error :" + ex.Message);
                     }
                 }
+                else
+                    Logger.SyncLogger.WarnFormat("File {0} doesn't exist, unabled to sync with source.", targetfile.FullName);
             }
 
             DirectoryInfo sourcedir;
@@ -84,15 +96,23 @@ namespace SyncDateTime.Model
                     {
                         Callback("Error :" + ex.Message);
                     }
-
-
                 }
+                else
+                    Logger.SyncLogger.WarnFormat("Folder {0} doesn't exist, unabled to sync with source.", targetdir.FullName);
+
+
             }
+            _stopWatch.Stop();
+            Logger.SyncLogger.InfoFormat("End. Sync {0} items, in {1}", _files.Count + _folders.Count, _stopWatch.Elapsed);
+            Logger.Flush();
+
         }
 
         private void Callback(string p)
         {
-            Application.Current.Dispatcher.BeginInvoke(_callback, System.Windows.Threading.DispatcherPriority.Background,p,Count);
+            Logger.SyncLogger.Info(p);
+            if (Application.Current != null)
+                Application.Current.Dispatcher.BeginInvoke(_callback, System.Windows.Threading.DispatcherPriority.Background,p,Count);
         }
 
         private void FullDirList(DirectoryInfo dir, string searchPattern)

@@ -1,6 +1,7 @@
 ﻿using GalaSoft.MvvmLight;
 using GalaSoft.MvvmLight.Command;
 using GalaSoft.MvvmLight.Messaging;
+using SyncDateTime.Logging;
 using SyncDateTime.Messages;
 using SyncDateTime.Model;
 using SyncDateTime.Properties;
@@ -121,7 +122,6 @@ namespace SyncDateTime.ViewModel
 
         #endregion
 
-
         #region Methods
 
         private void SelectFolderExecute(EnumWichFolder value)
@@ -166,7 +166,7 @@ namespace SyncDateTime.ViewModel
                 _LogResult.Clear();
                 _dataService.SyncFolder((e, i) =>
                 {
-                    LogResult = e;
+                    LogResult = e;                    
                     Restant = i;
                     if (i < 2)
                         _Busy = false;

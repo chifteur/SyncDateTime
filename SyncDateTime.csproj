@@ -27,6 +27,8 @@
     <UpdatePeriodically>false</UpdatePeriodically>
     <UpdateRequired>false</UpdateRequired>
     <MapFileExtensions>true</MapFileExtensions>
+    <PublisherName>MN Manganese Sàrl</PublisherName>
+    <SuiteName>SyncDateTime</SuiteName>
     <OpenBrowserOnPublish>false</OpenBrowserOnPublish>
     <ApplicationRevision>0</ApplicationRevision>
     <ApplicationVersion>1.0.0.0</ApplicationVersion>
@@ -74,6 +76,9 @@
     <Reference Include="GalaSoft.MvvmLight.WPF45">
       <HintPath>packages\MvvmLightLibs.4.2.30.0\lib\net45\GalaSoft.MvvmLight.WPF45.dll</HintPath>
     </Reference>
+    <Reference Include="log4net">
+      <HintPath>log4net\bin\net\4.0\release\log4net.dll</HintPath>
+    </Reference>
     <Reference Include="Microsoft.Practices.ServiceLocation">
       <HintPath>packages\CommonServiceLocator.1.0\lib\NET35\Microsoft.Practices.ServiceLocation.dll</HintPath>
     </Reference>
@@ -101,6 +106,8 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Design\DesignDataService.cs" />
+    <Compile Include="Logging\AsyncFileAppender.cs" />
+    <Compile Include="Logging\Logger.cs" />
     <Compile Include="Messages\SelectFolderMessage.cs" />
     <Compile Include="Model\BaseSyncProcess.cs" />
     <Compile Include="Model\DataService.cs" />

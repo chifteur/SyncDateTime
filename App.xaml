@@ -5,7 +5,7 @@
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
              StartupUri="MainWindow.xaml"
-             mc:Ignorable="d" ShutdownMode="OnMainWindowClose" Exit="Application_Exit">
+             mc:Ignorable="d" ShutdownMode="OnMainWindowClose" Exit="Application_Exit" Startup="Application_Startup">
     
     <Application.Resources>
         <!--Global View Model Locator-->
