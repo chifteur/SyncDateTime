@@ -110,6 +110,7 @@
     <Compile Include="Logging\Logger.cs" />
     <Compile Include="Messages\SelectFolderMessage.cs" />
     <Compile Include="Model\BaseSyncProcess.cs" />
+    <Compile Include="Model\DataOption.cs" />
     <Compile Include="Model\DataService.cs" />
     <Compile Include="Model\IDataService.cs" />
     <Compile Include="ViewModel\MainViewModel.cs" />

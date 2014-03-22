@@ -46,5 +46,29 @@ namespace SyncDateTime.Properties {
                 this["TargetFolder"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("True")]
+        public bool CreatedDateTime {
+            get {
+                return ((bool)(this["CreatedDateTime"]));
+            }
+            set {
+                this["CreatedDateTime"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool ModifiedDateTime {
+            get {
+                return ((bool)(this["ModifiedDateTime"]));
+            }
+            set {
+                this["ModifiedDateTime"] = value;
+            }
+        }
     }
 }

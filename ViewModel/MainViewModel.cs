@@ -6,6 +6,8 @@ using SyncDateTime.Messages;
 using SyncDateTime.Model;
 using SyncDateTime.Properties;
 using System.Collections.Generic;
+using System.Diagnostics;
+using System.IO;
 using System.Text;
 using System.Windows.Input;
 
@@ -32,6 +34,7 @@ namespace SyncDateTime.ViewModel
         private int _Restant = 0;
         private List<string> _LogResult;
         private string _sLogResult;
+
         #endregion
 
 
@@ -70,6 +73,28 @@ namespace SyncDateTime.ViewModel
             }
         }
 
+        public bool CreatedDateTime
+        {
+            get { return Settings.Default.CreatedDateTime; }
+            set
+            {
+                if (Settings.Default.CreatedDateTime == value) return;
+                Settings.Default.CreatedDateTime = value;
+                RaisePropertyChanged("CreatedDateTime");
+            }
+        }
+
+        public bool ModifiedDateTime
+        {
+            get { return Settings.Default.ModifiedDateTime; }
+            set
+            {
+                if (Settings.Default.ModifiedDateTime == value) return;
+                Settings.Default.ModifiedDateTime = value;
+                RaisePropertyChanged("ModifiedDateTime");
+            }
+        }
+
         public string LogResult
         {
             get
@@ -95,7 +120,8 @@ namespace SyncDateTime.ViewModel
         #region Commands
         public ICommand SelectFolder { get; private set; }
         public ICommand SwitchFolder { get; private set; }
-        public ICommand SynchFolder { get; private set; }        
+        public ICommand SynchFolder { get; private set; }
+        public ICommand ViewLogs { get; private set; }            
         #endregion
 
         #endregion
@@ -105,7 +131,8 @@ namespace SyncDateTime.ViewModel
         /// Initializes a new instance of the MainViewModel class.
         /// </summary>
         public MainViewModel(IDataService dataService)
-        {
+        {           
+
             _LogResult = new List<string>();
             _dataService = dataService;
 
@@ -118,6 +145,11 @@ namespace SyncDateTime.ViewModel
             });
 
             SynchFolder = new RelayCommand(SyncFolderExecute, SyncFolderCanExecute);
+
+            ViewLogs = new RelayCommand(() => { Process.Start(Logger.UserLogFolder); }, () => { return Directory.Exists(Logger.UserLogFolder); });
+
+            if (!ModifiedDateTime && !CreatedDateTime)
+                CreatedDateTime = true;
         }
 
         #endregion
@@ -164,13 +196,20 @@ namespace SyncDateTime.ViewModel
             {
                 _Busy = true;
                 _LogResult.Clear();
-                _dataService.SyncFolder((e, i) =>
+
+                var op = new DataOption { SourcePath = SourceFolder, TargetPath = TargetFolder, CreateDate = CreatedDateTime, ModDateTime = ModifiedDateTime };
+                if (op.IsValide)
                 {
-                    LogResult = e;                    
-                    Restant = i;
-                    if (i < 2)
-                        _Busy = false;
-                }, (b) => { });
+                    _dataService.SyncFolder(op, (e, i) =>
+                    {
+                        LogResult = e;
+                        Restant = i;
+                        if (i < 2)
+                            _Busy = false;
+                    });
+                }
+                else
+                    _Busy = false;
             }
         }
 

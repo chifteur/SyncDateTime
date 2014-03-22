@@ -14,6 +14,8 @@ namespace SyncDateTime.Logging
 {
     public class Logger
     {
+
+        public static string UserLogFolder = Path.Combine(System.Windows.Forms.Application.LocalUserAppDataPath,"SyncDateTime\\Logs");
         private static ILog _log;
         private static AsyncFileAppender _roller;
 
@@ -28,8 +30,9 @@ namespace SyncDateTime.Logging
 
             _roller = new AsyncFileAppender();
             _roller.AppendToFile = false;
-            var myTemp = System.Windows.Forms.Application.LocalUserAppDataPath;//Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
-            _roller.File = Path.Combine(myTemp, "SyncDateTime\\Logs\\SyncLog.txt");
+            //Environment.GetFolderPath(Environment.SpecialFolder.LocalApplicationData);
+            //UserLogFolder = Path.Combine(System.Windows.Forms.Application.LocalUserAppDataPath, "SyncDateTime\\Logs");
+            _roller.File = Path.Combine(UserLogFolder, "SyncLog.txt");
             _roller.Layout = patternLayout;
             _roller.MaxSizeRollBackups = 5;
             _roller.MaximumFileSize = "100MB";

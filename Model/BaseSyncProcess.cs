@@ -22,27 +22,27 @@ namespace SyncDateTime.Model
 
         public int Count { get; private set; }
 
-        public void Run(string source, string target, Action<string,int> logCallBack, Action<bool> callBack)
+        public void Run(DataOption option, Action<string,int> logCallBack)
         {
-            _skipDirectory = source.Length;
+            _skipDirectory = option.SourcePath.Length;
             // because we don't want it to be prefixed by a slash
             // if source like "C:\MyFolder", rather than "C:\MyFolder\"
-            if (!source.EndsWith("" + Path.DirectorySeparatorChar)) 
+            if (!option.SourcePath.EndsWith("" + Path.DirectorySeparatorChar)) 
                 _skipDirectory++;
 
             _callback = logCallBack;
-            //var task = Task.Run(() => RunAsync(source, target));           
-            Task.Factory.StartNew(() => RunAsync(source, target),TaskCreationOptions.LongRunning);//.ContinueWith((t)=>callBack(true));
+       
+            Task.Factory.StartNew(() => RunAsync(option), TaskCreationOptions.LongRunning);//.ContinueWith((t)=>callBack(true));
         }
 
-        private void RunAsync(string source, string target)
+        private void RunAsync(DataOption option)
         {
             Thread.CurrentThread.Priority = ThreadPriority.Highest;
             var _stopWatch = new Stopwatch();
-            Logger.SyncLogger.InfoFormat("Start sync source:{0}, target:{1}", source, target);
+            Logger.SyncLogger.InfoFormat("Start sync source:{0}, target:{1}", option.SourcePath, option.TargetPath);
             //First build the source list
             _stopWatch.Restart();
-            DirectoryInfo di = new DirectoryInfo(source);
+            DirectoryInfo di = new DirectoryInfo(option.SourcePath);
             FullDirList(di, "*");
 
             Logger.SyncLogger.InfoFormat("Find {0} files, and {1} folders in source", _files.Count, _folders.Count);
@@ -56,21 +56,39 @@ namespace SyncDateTime.Model
             FileInfo targetfile;
             foreach (var file in _files)
             {
-                sourcefile = new FileInfo(Path.Combine(source, file));
-                targetfile = new FileInfo(Path.Combine(target, file));
+                sourcefile = new FileInfo(Path.Combine(option.SourcePath, file));
+                targetfile = new FileInfo(Path.Combine(option.TargetPath, file));
                 Count--;
                 if (sourcefile.Exists && targetfile.Exists)
                 {
-                    newDT = File.GetCreationTime(sourcefile.FullName);
-                    try
+                    if (option.CreateDate)
                     {
+                        newDT = File.GetCreationTime(sourcefile.FullName);
+                        try
+                        {
 
-                        File.SetCreationTime(targetfile.FullName, newDT);
-                        Callback(String.Format("Set file {0:g} : {1}", newDT, targetfile.FullName));
+                            File.SetCreationTime(targetfile.FullName, newDT);
+                            Callback(String.Format("Set CreationTime file {0:g} : {1}", newDT, targetfile.FullName));
+                        }
+                        catch (Exception ex)
+                        {
+                            Callback("Error :" + ex.Message);
+                        }
                     }
-                    catch (Exception ex)
+
+                    if (option.ModDateTime)
                     {
-                        Callback("Error :" + ex.Message);
+                        newDT = File.GetLastWriteTime(sourcefile.FullName);
+                        try
+                        {
+
+                            File.SetLastWriteTime(targetfile.FullName, newDT);
+                            Callback(String.Format("Set LastWriteTime file {0:g} : {1}", newDT, targetfile.FullName));
+                        }
+                        catch (Exception ex)
+                        {
+                            Callback("Error :" + ex.Message);
+                        }
                     }
                 }
                 else
@@ -81,20 +99,37 @@ namespace SyncDateTime.Model
             DirectoryInfo targetdir;
             foreach (var dir in _folders)
             {
-                sourcedir = new DirectoryInfo(Path.Combine(source, dir));
-                targetdir = new DirectoryInfo(Path.Combine(target, dir));
+                sourcedir = new DirectoryInfo(Path.Combine(option.SourcePath, dir));
+                targetdir = new DirectoryInfo(Path.Combine(option.TargetPath, dir));
                 Count--;
                 if (sourcedir.Exists && targetdir.Exists)
                 {
-                    newDT = Directory.GetCreationTime(sourcedir.FullName);
-                    try
+                    if (option.CreateDate)
                     {
-                        Directory.SetCreationTime(targetdir.FullName, newDT);
-                        Callback(String.Format("Set folder {0:g} : {1}", newDT, targetdir.FullName));
+                        newDT = Directory.GetCreationTime(sourcedir.FullName);
+                        try
+                        {
+                            Directory.SetCreationTime(targetdir.FullName, newDT);
+                            Callback(String.Format("Set CreationTime folder {0:g} : {1}", newDT, targetdir.FullName));
+                        }
+                        catch (Exception ex)
+                        {
+                            Callback("Error :" + ex.Message);
+                        }
                     }
-                    catch (Exception ex)
+
+                    if (option.ModDateTime)
                     {
-                        Callback("Error :" + ex.Message);
+                        newDT = Directory.GetLastWriteTime(sourcedir.FullName);
+                        try
+                        {
+                            Directory.SetLastWriteTime(targetdir.FullName, newDT);
+                            Callback(String.Format("Set LastWriteTime folder {0:g} : {1}", newDT, targetdir.FullName));
+                        }
+                        catch (Exception ex)
+                        {
+                            Callback("Error :" + ex.Message);
+                        }
                     }
                 }
                 else
